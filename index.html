@@ -6,47 +6,102 @@
   <title>Webhook Discord Messenger</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #2c2f33;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #2f3136;
       color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
       padding: 2rem;
+      overflow: hidden;
+      box-sizing: border-box;
     }
+
     h1 {
       color: #7289da;
+      font-size: 2.5rem;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+      margin-bottom: 1.5rem;
     }
+
     #chatbox {
       width: 100%;
-      max-width: 600px;
+      max-width: 650px;
+      background: #36393f;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.5rem;
+      transition: transform 0.3s ease-in-out;
     }
-    textarea, button {
-      width: 100%;
-      padding: 1rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
+
+    #chatbox:hover {
+      transform: scale(1.05);
     }
+
     textarea {
+      background: #444b54;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      padding: 1.2rem;
       resize: vertical;
-      height: 100px;
+      min-height: 120px;
+      outline: none;
+      transition: background 0.3s ease;
     }
+
+    textarea:focus {
+      background: #50575c;
+    }
+
     button {
       background: #7289da;
       color: white;
+      font-size: 1.2rem;
+      padding: 1rem;
+      border: none;
+      border-radius: 10px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, transform 0.3s ease;
     }
+
     button:hover {
       background: #5b6eae;
+      transform: translateY(-3px);
     }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
     #status {
-      margin-top: 1rem;
-      font-size: 0.9rem;
+      font-size: 1rem;
+      text-align: center;
+      padding: 1rem;
+      border-radius: 8px;
+      display: none;
+    }
+
+    .status-success {
+      background-color: #43b581;
+      color: white;
+    }
+
+    .status-error {
+      background-color: #f04747;
+      color: white;
+    }
+
+    .status-info {
+      background-color: #faa61a;
+      color: white;
     }
   </style>
 </head>
@@ -73,9 +128,9 @@
         const newNick = text.split("/nick ")[1];
         if (newNick) {
           currentUsername = newNick;
-          status.innerText = `✅ Pseudo changé en : ${currentUsername}`;
+          updateStatus(`✅ Pseudo changé en : ${currentUsername}`, 'status-success');
         } else {
-          status.innerText = "❌ Syntaxe incorrecte. Utilise : /nick <nom>";
+          updateStatus("❌ Syntaxe incorrecte. Utilise : /nick <nom>", 'status-error');
         }
         input.value = "";
         return;
@@ -86,14 +141,13 @@
         const userId = text.split("/pp ")[1].replace(/[<@>]/g, "").trim();
 
         if (!/^\d+$/.test(userId)) {
-          status.innerText = "❌ ID invalide.";
+          updateStatus("❌ ID invalide.", 'status-error');
           return;
         }
 
         try {
           const res = await fetch(`https://discordlookup.mesavirep.xyz/v1/user/${userId}`);
-          
-          // Vérifier si l'API répond correctement
+
           if (!res.ok) {
             throw new Error(`API non disponible ou erreur ${res.status}`);
           }
@@ -123,15 +177,15 @@
             });
 
             if (response.ok) {
-              status.innerText = "✅ Avatar envoyé avec succès !";
+              updateStatus("✅ Avatar envoyé avec succès !", 'status-success');
             } else {
-              status.innerText = "❌ Erreur lors de l'envoi à Discord.";
+              updateStatus("❌ Erreur lors de l'envoi à Discord.", 'status-error');
             }
           } else {
-            status.innerText = "❌ Impossible de récupérer l'avatar. Vérifie l'ID.";
+            updateStatus("❌ Impossible de récupérer l'avatar. Vérifie l'ID.", 'status-error');
           }
         } catch (e) {
-          status.innerText = "❌ Erreur lors de la récupération.";
+          updateStatus("❌ Erreur lors de la récupération.", 'status-error');
           console.error(e);
         }
 
@@ -141,7 +195,7 @@
 
       // Envoi normal de message
       if (text === "") {
-        status.innerText = "❌ Le message est vide.";
+        updateStatus("❌ Le message est vide.", 'status-error');
         return;
       }
 
@@ -158,15 +212,25 @@
         });
 
         if (response.ok) {
-          status.innerText = "✅ Message envoyé !";
+          updateStatus("✅ Message envoyé !", 'status-success');
           input.value = "";
         } else {
-          status.innerText = "❌ Erreur lors de l'envoi.";
+          updateStatus("❌ Erreur lors de l'envoi.", 'status-error');
         }
       } catch (err) {
-        status.innerText = "❌ Erreur réseau.";
+        updateStatus("❌ Erreur réseau.", 'status-error');
         console.error(err);
       }
+    }
+
+    function updateStatus(message, type) {
+      const status = document.getElementById("status");
+      status.className = type;
+      status.innerText = message;
+      status.style.display = 'block';
+      setTimeout(() => {
+        status.style.display = 'none';
+      }, 4000);
     }
   </script>
 
