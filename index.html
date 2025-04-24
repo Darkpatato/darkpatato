@@ -6,18 +6,13 @@
 
 <head>
 
-
     <meta charset="UTF-8">
-
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
     <title>Discord Commandes</title>
 
-
     <style>
-
 
         body {
 
@@ -111,42 +106,31 @@
 
         }
 
-
     </style>
-
 
 </head>
 
 
 <body>
 
-
     <div class="container">
-
 
         <h1>Commandes Discord</h1>
 
-
         <form id="commandForm">
-
 
             <input type="text" id="command" placeholder="Entrez votre commande" required>
 
-
             <button type="submit">Envoyer</button>
 
-
         </form>
-
 
     </div>
 
 
     <script>
 
-
         const form = document.getElementById('commandForm');
-
 
         const webhookURL = 'https://discord.com/api/webhooks/1363940864233181396/bFn-s-QiS-k3X8HbVEwz25iVz6QpzIO2NDBwVQttwMXxgGcPeGNdM5L8QCjJh7lD_7_n'; // Remplacez par votre webhook
 
@@ -155,124 +139,69 @@
 
             event.preventDefault();
 
-
             const commandInput = document.getElementById('command');
 
             const command = commandInput.value;
 
 
-            if (command.startsWith('/pp <@')) {
-
-                const userIdMatch = command.match(/<@(\d+)>/);
-
-
-                if (userIdMatch) {
-
-                    const userId = userIdMatch[1];
-
-                    const avatarURL = `https://cdn.discordapp.com/avatars/${userId}/default.png`;
-
-
-                    // Vérification de l'avatar
-
-                    fetch(`https://discord.com/api/users/${userId}`, {
-
-                        method: 'GET',
-
-                        headers: {
-
-                            'Authorization': 'Bot YOUR_BOT_TOKEN' // Remplacez par votre token de bot
-
-                        }
-
-                    })
-
-                    .then(response => response.json())
-
-                    .then(user => {
-
-                        const avatarURL = user.avatar ? `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.png` : avatarURL;
-
-
-                        return fetch(webhookURL, {
-
-                            method: 'POST',
-
-                            headers: {
-
-                                'Content-Type': 'application/json'
-
-                            },
-
-                            body: JSON.stringify({ 
-
-                                content: `Voici la photo de profil de <@${userId}>`, 
-
-                                embeds: [{
-
-                                    image: {
-
-                                        url: avatarURL
-
-                                    }
-
-                                }]
-
-                            })
-
-                        });
-
-                    })
-
-                    .then(response => {
-
-                        if (response.ok) {
-
-                            alert('Photo de profil envoyée avec succès !');
-
-                            commandInput.value = '';
-
-                        } else {
-
-                            alert('Erreur lors de l\'envoi de la photo de profil.');
-
-                        }
-
-                    })
-
-                    .catch(error => alert('Erreur de connexion : ' + error.message));
-
-
-                } else {
-
-                    alert('ID d\'utilisateur invalide. Veuillez utiliser le format <@id>.');
-
-                }
-
-
-            } else if (command.startsWith('/nick ')) {
+            if (command.startsWith('/nick ')) {
 
                 const newNick = command.slice(6); // Extraire le nouveau pseudo
+
 
                 // Logique pour changer le pseudo ici
 
                 alert(`Votre pseudo a été changé en : ${newNick}`);
 
-                commandInput.value = '';
 
+                // Envoi d'un message via le webhook
+
+                fetch(webhookURL, {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type': 'application/json'
+
+                    },
+
+                    body: JSON.stringify({
+
+                        content: `Le pseudo a été changé en : ${newNick}`
+
+                    })
+
+                })
+
+                .then(response => {
+
+                    if (response.ok) {
+
+                        alert('Message envoyé avec succès !');
+
+                    } else {
+
+                        alert('Erreur lors de l\'envoi du message.');
+
+                    }
+
+                })
+
+                .catch(error => alert('Erreur de connexion : ' + error.message));
+
+
+                commandInput.value = '';
 
             } else {
 
-                alert('Commande non reconnue. Utilisez /pp <@id> ou /nick nouveauPseudo.');
+                alert('Commande non reconnue. Utilisez /nick nouveauPseudo.');
 
             }
 
-
         });
 
-
     </script>
-
 
 </body>
 
