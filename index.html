@@ -193,9 +193,17 @@
 
                 commandInput.value = '';
 
+            } else if (command.trim() !== '') {
+
+                // Si la commande ne commence pas par '/', envoyer un message normal
+
+                alert(`Message envoyé : ${command}`);
+
+                commandInput.value = '';
+
             } else {
 
-                alert('Commande non reconnue. Utilisez /nick nouveauPseudo.');
+                alert('Veuillez entrer une commande ou un message.');
 
             }
 
