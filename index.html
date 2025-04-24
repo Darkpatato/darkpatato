@@ -14,11 +14,9 @@
 
         body {
 
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
 
             display: flex;
-
-            flex-direction: column;
 
             align-items: center;
 
@@ -26,19 +24,41 @@
 
             height: 100vh;
 
-            background-color: #f0f0f0;
+            margin: 0;
+
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+
+            color: white;
+
+            text-align: center;
 
         }
 
-        form {
+        .container {
 
-            background: white;
+            background: rgba(255, 255, 255, 0.1);
 
-            padding: 20px;
+            backdrop-filter: blur(10px);
 
-            border-radius: 5px;
+            border-radius: 15px;
 
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+
+            width: 90%;
+
+            max-width: 400px;
+
+        }
+
+        h1 {
+
+            margin-bottom: 20px;
+
+            font-size: 24px;
+
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 
         }
 
@@ -46,19 +66,23 @@
 
             width: 100%;
 
-            padding: 10px;
+            padding: 15px;
 
             margin: 10px 0;
 
-            border: 1px solid #ccc;
+            border: none;
 
-            border-radius: 5px;
+            border-radius: 10px;
+
+            font-size: 16px;
+
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 
         }
 
         button {
 
-            padding: 10px;
+            padding: 15px;
 
             background-color: #7289da;
 
@@ -66,15 +90,39 @@
 
             border: none;
 
-            border-radius: 5px;
+            border-radius: 10px;
 
             cursor: pointer;
+
+            font-size: 16px;
+
+            transition: background-color 0.3s, transform 0.2s;
+
+            width: 100%;
 
         }
 
         button:hover {
 
             background-color: #5b6eae;
+
+            transform: translateY(-2px);
+
+        }
+
+        button:active {
+
+            transform: translateY(0);
+
+        }
+
+        .footer {
+
+            margin-top: 20px;
+
+            font-size: 14px;
+
+            color: rgba(255, 255, 255, 0.7);
 
         }
 
@@ -84,13 +132,21 @@
 
 <body>
 
-    <form id="messageForm">
+    <div class="container">
 
-        <input type="text" id="message" placeholder="Entrez votre message" required>
+        <h1>Envoyer un message à Discord</h1>
 
-        <button type="submit">Envoyer</button>
+        <form id="messageForm">
 
-    </form>
+            <input type="text" id="message" placeholder="Entrez votre message" required>
+
+            <button type="submit">Envoyer</button>
+
+        </form>
+
+        <div class="footer">Développé avec ❤️</div>
+
+    </div>
 
     <script>
 
