@@ -92,9 +92,15 @@
 
         try {
           const res = await fetch(`https://discordlookup.mesavirep.xyz/v1/user/${userId}`);
+          
+          // Vérifier si l'API répond correctement
+          if (!res.ok) {
+            throw new Error(`API non disponible ou erreur ${res.status}`);
+          }
+
           const data = await res.json();
 
-          if (data.avatar && data.username) {
+          if (data && data.avatar && data.username) {
             const avatarUrl = `https://cdn.discordapp.com/avatars/${userId}/${data.avatar}.png?size=1024`;
 
             const embed = {
@@ -122,7 +128,7 @@
               status.innerText = "❌ Erreur lors de l'envoi à Discord.";
             }
           } else {
-            status.innerText = "❌ Impossible de récupérer l'avatar.";
+            status.innerText = "❌ Impossible de récupérer l'avatar. Vérifie l'ID.";
           }
         } catch (e) {
           status.innerText = "❌ Erreur lors de la récupération.";
