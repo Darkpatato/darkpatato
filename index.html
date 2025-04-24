@@ -103,6 +103,32 @@
       background-color: #faa61a;
       color: white;
     }
+
+    .file-upload {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .file-upload input[type="file"] {
+      color: #7289da;
+      background: #444b54;
+      padding: 1rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .file-upload input[type="file"]:hover {
+      background: #50575c;
+    }
+
+    .file-info {
+      font-size: 0.9rem;
+      color: #bbb;
+    }
   </style>
 </head>
 <body>
@@ -112,6 +138,11 @@
     <textarea id="message" placeholder="Écris ton message ou tape /nick <nom> ou /pp <@id>"></textarea>
     <button onclick="sendMessage()">Envoyer</button>
     <div id="status"></div>
+
+    <div class="file-upload">
+      <input type="file" id="fileUpload" accept="audio/*,image/*,video/*" onchange="updateFileInfo()"/>
+      <div class="file-info" id="fileInfo"></div>
+    </div>
   </div>
 
   <script>
@@ -122,6 +153,8 @@
       const input = document.getElementById("message");
       const status = document.getElementById("status");
       const text = input.value.trim();
+      const fileInput = document.getElementById("fileUpload");
+      const file = fileInput.files[0];
 
       // Commande /nick
       if (text.startsWith("/nick ")) {
@@ -159,7 +192,7 @@
 
             const embed = {
               title: `Avatar de ${data.username}`,
-              color: Math.floor(Math.random() * 16777215), // Couleur aléatoire
+              color: Math.floor(Math.random() * 16777215),
               image: {
                 url: avatarUrl
               }
@@ -193,6 +226,32 @@
         return;
       }
 
+      // Envoi de fichier
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("username", currentUsername);
+
+        try {
+          const response = await fetch(WEBHOOK_URL, {
+            method: "POST",
+            body: formData
+          });
+
+          if (response.ok) {
+            updateStatus("✅ Fichier envoyé avec succès !", 'status-success');
+          } else {
+            updateStatus("❌ Erreur lors de l'envoi du fichier.", 'status-error');
+          }
+        } catch (err) {
+          updateStatus("❌ Erreur réseau.", 'status-error');
+          console.error(err);
+        }
+
+        fileInput.value = "";
+        return;
+      }
+
       // Envoi normal de message
       if (text === "") {
         updateStatus("❌ Le message est vide.", 'status-error');
@@ -220,6 +279,18 @@
       } catch (err) {
         updateStatus("❌ Erreur réseau.", 'status-error');
         console.error(err);
+      }
+    }
+
+    function updateFileInfo() {
+      const fileInput = document.getElementById("fileUpload");
+      const fileInfo = document.getElementById("fileInfo");
+      const file = fileInput.files[0];
+
+      if (file) {
+        fileInfo.innerText = `Fichier sélectionné: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+      } else {
+        fileInfo.innerText = "";
       }
     }
 
