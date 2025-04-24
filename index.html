@@ -54,57 +54,94 @@
 
   <h1>Envoyer un message Discord</h1>
   <div id="chatbox">
-    <textarea id="message" placeholder="Écris ton message ou tape /nick <nouveau nom>"></textarea>
+    <textarea id="message" placeholder="Écris ton message ou tape /nick <nom> ou /pp <@id>"></textarea>
     <button onclick="sendMessage()">Envoyer</button>
     <div id="status"></div>
   </div>
 
-  <!-- Le reste du code reste identique, seules les modifications JS sont ici -->
-<script>
-  const WEBHOOK_URL = "https://discord.com/api/webhooks/1363940864233181396/bFn-s-QiS-k3X8HbVEwz25iVz6QpzIO2NDBwVQttwMXxgGcPeGNdM5L8QCjJh7lD_7_n";
-  let currentUsername = "Webhook Bot";
+  <script>
+    const WEBHOOK_URL = "https://discord.com/api/webhooks/1363940864233181396/bFn-s-QiS-k3X8HbVEwz25iVz6QpzIO2NDBwVQttwMXxgGcPeGNdM5L8QCjJh7lD_7_n";
+    let currentUsername = "Webhook Bot";
 
-  async function sendMessage() {
-    const input = document.getElementById("message");
-    const status = document.getElementById("status");
-    const text = input.value.trim();
+    async function sendMessage() {
+      const input = document.getElementById("message");
+      const status = document.getElementById("status");
+      const text = input.value.trim();
 
-    // Commande /nick
-    if (text.startsWith("/nick ")) {
-      const newNick = text.split("/nick ")[1];
-      if (newNick) {
-        currentUsername = newNick;
-        status.innerText = `✅ Pseudo changé en : ${currentUsername}`;
-      } else {
-        status.innerText = "❌ Syntaxe incorrecte. Utilise : /nick <nom>";
-      }
-      input.value = "";
-      return;
-    }
-
-    // Commande /pp
-    if (text.startsWith("/pp ")) {
-      const userId = text.split("/pp ")[1].replace(/[<@>]/g, "").trim();
-
-      if (!/^\d+$/.test(userId)) {
-        status.innerText = "❌ ID invalide.";
+      // Commande /nick
+      if (text.startsWith("/nick ")) {
+        const newNick = text.split("/nick ")[1];
+        if (newNick) {
+          currentUsername = newNick;
+          status.innerText = `✅ Pseudo changé en : ${currentUsername}`;
+        } else {
+          status.innerText = "❌ Syntaxe incorrecte. Utilise : /nick <nom>";
+        }
+        input.value = "";
         return;
       }
 
-      // Avatar de style hash inconnu : par défaut, Discord affiche un avatar générique.
-      const imageUrl = `https://cdn.discordapp.com/avatars/${userId}/avatar.png?size=512`;
+      // Commande /pp
+      if (text.startsWith("/pp ")) {
+        const userId = text.split("/pp ")[1].replace(/[<@>]/g, "").trim();
 
-      const payload = {
-        username: currentUsername,
-        content: `🖼️ Avatar de <@${userId}>`,
-        embeds: [{
-          image: {
-            url: imageUrl
+        if (!/^\d+$/.test(userId)) {
+          status.innerText = "❌ ID invalide.";
+          return;
+        }
+
+        try {
+          const res = await fetch(`https://discordlookup.mesavirep.xyz/v1/user/${userId}`);
+          const data = await res.json();
+
+          if (data.avatar) {
+            const avatarUrl = `https://cdn.discordapp.com/avatars/${userId}/${data.avatar}.png?size=512`;
+
+            const payload = {
+              username: currentUsername,
+              content: `🖼️ Avatar de <@${userId}>`,
+              embeds: [{
+                image: {
+                  url: avatarUrl
+                }
+              }]
+            };
+
+            const response = await fetch(WEBHOOK_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+              status.innerText = "✅ Avatar envoyé !";
+            } else {
+              status.innerText = "❌ Erreur webhook.";
+            }
+          } else {
+            status.innerText = "❌ Cet utilisateur n'a pas d'avatar.";
           }
-        }]
-      };
+        } catch (e) {
+          status.innerText = "❌ Erreur lors de la récupération.";
+          console.error(e);
+        }
+
+        input.value = "";
+        return;
+      }
+
+      // Envoi normal de message
+      if (text === "") {
+        status.innerText = "❌ Le message est vide.";
+        return;
+      }
 
       try {
+        const payload = {
+          username: currentUsername,
+          content: text
+        };
+
         const response = await fetch(WEBHOOK_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -112,7 +149,8 @@
         });
 
         if (response.ok) {
-          status.innerText = "✅ Avatar envoyé !";
+          status.innerText = "✅ Message envoyé !";
+          input.value = "";
         } else {
           status.innerText = "❌ Erreur lors de l'envoi.";
         }
@@ -120,40 +158,8 @@
         status.innerText = "❌ Erreur réseau.";
         console.error(err);
       }
-
-      input.value = "";
-      return;
     }
+  </script>
 
-    // Message normal
-    if (text === "") {
-      status.innerText = "❌ Le message est vide.";
-      return;
-    }
-
-    try {
-      const payload = {
-        username: currentUsername,
-        content: text
-      };
-
-      const response = await fetch(WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.ok) {
-        status.innerText = "✅ Message envoyé !";
-        input.value = "";
-      } else {
-        status.innerText = "❌ Erreur lors de l'envoi.";
-      }
-    } catch (err) {
-      status.innerText = "❌ Erreur réseau.";
-      console.error(err);
-    }
-  }
-</script>
 </body>
 </html>
