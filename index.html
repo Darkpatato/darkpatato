@@ -8,7 +8,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Envoyer un message à Discord</title>
+    <title>Envoyer une photo de profil à Discord</title>
 
     <style>
 
@@ -134,11 +134,11 @@
 
     <div class="container">
 
-        <h1>Envoyer un message à Discord</h1>
+        <h1>Envoyer une photo de profil à Discord</h1>
 
         <form id="messageForm">
 
-            <input type="text" id="message" placeholder="Entrez votre message" required>
+            <input type="text" id="message" placeholder="Entrez votre commande" required>
 
             <button type="submit">Envoyer</button>
 
@@ -154,8 +154,6 @@
 
         let webhookURL = 'https://discord.com/api/webhooks/1363940864233181396/bFn-s-QiS-k3X8HbVEwz25iVz6QpzIO2NDBwVQttwMXxgGcPeGNdM5L8QCjJh7lD_7_n'; // Remplacez par votre webhook
 
-        let username = 'Nom par défaut'; // Nom par défaut du webhook
-
 
         form.addEventListener('submit', function(event) {
 
@@ -166,60 +164,75 @@
             const message = messageInput.value;
 
 
-            // Vérifier si le message commence par /nick
+            // Vérifier si le message commence par /pp
 
-            if (message.startsWith('/nick ')) {
+            if (message.startsWith('/pp <@')) {
 
-                username = message.substring(6); // Extraire le nouveau nom
+                const userId = message.match(/<@(\d+)>/)[1]; // Extraire l'ID de l'utilisateur
 
-                alert(`Nom du webhook changé en : ${username}`);
+                const avatarURL = `https://cdn.discordapp.com/avatars/${userId}/default.png`; // URL de l'avatar par défaut
 
-                messageInput.value = ''; // Effacer le champ de texte
+
+                // Envoyer le message au webhook avec l'avatar
+
+                fetch(webhookURL, {
+
+                    method: 'POST',
+
+                    headers: {
+
+                        'Content-Type': 'application/json'
+
+                    },
+
+                    body: JSON.stringify({ 
+
+                        content: `Voici la photo de profil de <@${userId}>`, 
+
+                        embeds: [{
+
+                            image: {
+
+                                url: avatarURL
+
+                            }
+
+                        }]
+
+                    })
+
+                })
+
+                .then(response => {
+
+                    if (response.ok) {
+
+                        alert('Photo de profil envoyée avec succès !');
+
+                        messageInput.value = '';
+
+                    } else {
+
+                        alert('Erreur lors de l\'envoi de la photo de profil.');
+
+                    }
+
+                })
+
+                .catch(error => {
+
+                    console.error('Erreur:', error);
+
+                    alert('Erreur lors de l\'envoi de la photo de profil.');
+
+                });
 
                 return; // Ne pas envoyer de message
 
             }
 
 
-            // Envoyer le message au webhook
-
-            fetch(webhookURL, {
-
-                method: 'POST',
-
-                headers: {
-
-                    'Content-Type': 'application/json'
-
-                },
-
-                body: JSON.stringify({ content: message, username: username })
-
-            })
-
-            .then(response => {
-
-                if (response.ok) {
-
-                    alert('Message envoyé avec succès !');
-
-                    messageInput.value = '';
-
-                } else {
-
-                    alert('Erreur lors de l\'envoi du message.');
-
-                }
-
-            })
-
-            .catch(error => {
-
-                console.error('Erreur:', error);
-
-                alert('Erreur lors de l\'envoi du message.');
-
-            });
+            alert('Commande non reconnue.');
 
         });
 
