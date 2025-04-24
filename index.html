@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 
+
 <html lang="fr">
+
 
 <head>
 
+
     <meta charset="UTF-8">
+
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+
     <title>Discord Commandes</title>
 
+
     <style>
+
 
         body {
 
@@ -34,6 +41,7 @@
 
         }
 
+
         .container {
 
             background: rgba(255, 255, 255, 0.1);
@@ -52,6 +60,7 @@
 
         }
 
+
         input[type="text"] {
 
             width: 100%;
@@ -69,6 +78,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 
         }
+
 
         button {
 
@@ -92,6 +102,7 @@
 
         }
 
+
         button:hover {
 
             background-color: #5b6eae;
@@ -100,29 +111,42 @@
 
         }
 
+
     </style>
+
 
 </head>
 
+
 <body>
+
 
     <div class="container">
 
+
         <h1>Commandes Discord</h1>
+
 
         <form id="commandForm">
 
+
             <input type="text" id="command" placeholder="Entrez votre commande" required>
+
 
             <button type="submit">Envoyer</button>
 
+
         </form>
+
 
     </div>
 
+
     <script>
 
+
         const form = document.getElementById('commandForm');
+
 
         const webhookURL = 'https://discord.com/api/webhooks/1363940864233181396/bFn-s-QiS-k3X8HbVEwz25iVz6QpzIO2NDBwVQttwMXxgGcPeGNdM5L8QCjJh7lD_7_n'; // Remplacez par votre webhook
 
@@ -130,6 +154,7 @@
         form.addEventListener('submit', function(event) {
 
             event.preventDefault();
+
 
             const commandInput = document.getElementById('command');
 
@@ -140,6 +165,7 @@
 
                 const userIdMatch = command.match(/<@(\d+)>/);
 
+
                 if (userIdMatch) {
 
                     const userId = userIdMatch[1];
@@ -147,31 +173,54 @@
                     const avatarURL = `https://cdn.discordapp.com/avatars/${userId}/default.png`;
 
 
-                    fetch(webhookURL, {
+                    // Vérification de l'avatar
 
-                        method: 'POST',
+                    fetch(`https://discord.com/api/users/${userId}`, {
+
+                        method: 'GET',
 
                         headers: {
 
-                            'Content-Type': 'application/json'
+                            'Authorization': 'Bot YOUR_BOT_TOKEN' // Remplacez par votre token de bot
 
-                        },
+                        }
 
-                        body: JSON.stringify({ 
+                    })
 
-                            content: `Voici la photo de profil de <@${userId}>`, 
+                    .then(response => response.json())
 
-                            embeds: [{
+                    .then(user => {
 
-                                image: {
+                        const avatarURL = user.avatar ? `https://cdn.discordapp.com/avatars/${userId}/${user.avatar}.png` : avatarURL;
 
-                                    url: avatarURL
 
-                                }
+                        return fetch(webhookURL, {
 
-                            }]
+                            method: 'POST',
 
-                        })
+                            headers: {
+
+                                'Content-Type': 'application/json'
+
+                            },
+
+                            body: JSON.stringify({ 
+
+                                content: `Voici la photo de profil de <@${userId}>`, 
+
+                                embeds: [{
+
+                                    image: {
+
+                                        url: avatarURL
+
+                                    }
+
+                                }]
+
+                            })
+
+                        });
 
                     })
 
@@ -193,11 +242,13 @@
 
                     .catch(error => alert('Erreur de connexion : ' + error.message));
 
+
                 } else {
 
                     alert('ID d\'utilisateur invalide. Veuillez utiliser le format <@id>.');
 
                 }
+
 
             } else if (command.startsWith('/nick ')) {
 
@@ -209,16 +260,21 @@
 
                 commandInput.value = '';
 
+
             } else {
 
                 alert('Commande non reconnue. Utilisez /pp <@id> ou /nick nouveauPseudo.');
 
             }
 
+
         });
+
 
     </script>
 
+
 </body>
+
 
 </html>
