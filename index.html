@@ -94,17 +94,20 @@
           const res = await fetch(`https://discordlookup.mesavirep.xyz/v1/user/${userId}`);
           const data = await res.json();
 
-          if (data.avatar) {
-            const avatarUrl = `https://cdn.discordapp.com/avatars/${userId}/${data.avatar}.png?size=512`;
+          if (data.avatar && data.username) {
+            const avatarUrl = `https://cdn.discordapp.com/avatars/${userId}/${data.avatar}.png?size=1024`;
+
+            const embed = {
+              title: `Avatar de ${data.username}`,
+              color: Math.floor(Math.random() * 16777215), // Couleur aléatoire
+              image: {
+                url: avatarUrl
+              }
+            };
 
             const payload = {
               username: currentUsername,
-              content: `🖼️ Avatar de <@${userId}>`,
-              embeds: [{
-                image: {
-                  url: avatarUrl
-                }
-              }]
+              embeds: [embed]
             };
 
             const response = await fetch(WEBHOOK_URL, {
@@ -114,12 +117,12 @@
             });
 
             if (response.ok) {
-              status.innerText = "✅ Avatar envoyé !";
+              status.innerText = "✅ Avatar envoyé avec succès !";
             } else {
-              status.innerText = "❌ Erreur webhook.";
+              status.innerText = "❌ Erreur lors de l'envoi à Discord.";
             }
           } else {
-            status.innerText = "❌ Cet utilisateur n'a pas d'avatar.";
+            status.innerText = "❌ Impossible de récupérer l'avatar.";
           }
         } catch (e) {
           status.innerText = "❌ Erreur lors de la récupération.";
