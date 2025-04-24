@@ -168,71 +168,76 @@
 
             if (message.startsWith('/pp <@')) {
 
-                const userId = message.match(/<@(\d+)>/)[1]; // Extraire l'ID de l'utilisateur
+                const userIdMatch = message.match(/<@(\d+)>/);
 
-                const avatarURL = `https://cdn.discordapp.com/avatars/${userId}/default.png`; // URL de l'avatar par défaut
+                if (userIdMatch) {
+
+                    const userId = userIdMatch[1]; // Extraire l'ID de l'utilisateur
+
+                    const avatarURL = `https://cdn.discordapp.com/avatars/${userId}/default.png`; // URL de l'avatar par défaut
 
 
-                // Envoyer le message au webhook avec l'avatar
+                    // Envoyer le message au webhook avec l'avatar
 
-                fetch(webhookURL, {
+                    fetch(webhookURL, {
 
-                    method: 'POST',
+                        method: 'POST',
 
-                    headers: {
+                        headers: {
 
-                        'Content-Type': 'application/json'
+                            'Content-Type': 'application/json'
 
-                    },
+                        },
 
-                    body: JSON.stringify({ 
+                        body: JSON.stringify({ 
 
-                        content: `Voici la photo de profil de <@${userId}>`, 
+                            content: `Voici la photo de profil de <@${userId}>`, 
 
-                        embeds: [{
+                            embeds: [{
 
-                            image: {
+                                image: {
 
-                                url: avatarURL
+                                    url: avatarURL
 
-                            }
+                                }
 
-                        }]
+                            }]
+
+                        })
 
                     })
 
-                })
+                    .then(response => {
 
-                .then(response => {
+                        if (response.ok) {
 
-                    if (response.ok) {
+                            alert('Photo de profil envoyée avec succès !');
 
-                        alert('Photo de profil envoyée avec succès !');
+                            messageInput.value = '';
 
-                        messageInput.value = '';
+                        } else {
 
-                    } else {
+                            alert('Erreur lors de l\'envoi de la photo de profil.');
 
-                        alert('Erreur lors de l\'envoi de la photo de profil.');
+                        }
 
-                    }
+                    })
 
-                })
+                    .catch(error => alert('Erreur de connexion : ' + error.message);
 
-                .catch(error => {
+                    });
 
-                    console.error('Erreur:', error);
+                } else {
 
-                    alert('Erreur lors de l\'envoi de la photo de profil.');
+                    alert('ID d\'utilisateur invalide. Veuillez utiliser le format <@id>.');
 
-                });
+                }
 
-                return; // Ne pas envoyer de message
+            } else {
+
+                alert('Veuillez commencer votre message par /pp <@id>.');
 
             }
-
-
-            alert('Commande non reconnue.');
 
         });
 
