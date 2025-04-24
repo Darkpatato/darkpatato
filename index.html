@@ -152,14 +152,36 @@
 
         const form = document.getElementById('messageForm');
 
+        let webhookURL = 'https://discord.com/api/webhooks/1363940864233181396/bFn-s-QiS-k3X8HbVEwz25iVz6QpzIO2NDBwVQttwMXxgGcPeGNdM5L8QCjJh7lD_7_n'; // Remplacez par votre webhook
+
+        let username = 'Nom par défaut'; // Nom par défaut du webhook
+
+
         form.addEventListener('submit', function(event) {
 
             event.preventDefault();
 
-            const message = document.getElementById('message').value;
+            const messageInput = document.getElementById('message');
 
-            const webhookURL = 'https://discord.com/api/webhooks/1363940864233181396/bFn-s-QiS-k3X8HbVEwz25iVz6QpzIO2NDBwVQttwMXxgGcPeGNdM5L8QCjJh7lD_7_n'; // Remplacez par votre webhook
+            const message = messageInput.value;
 
+
+            // Vérifier si le message commence par /nick
+
+            if (message.startsWith('/nick ')) {
+
+                username = message.substring(6); // Extraire le nouveau nom
+
+                alert(`Nom du webhook changé en : ${username}`);
+
+                messageInput.value = ''; // Effacer le champ de texte
+
+                return; // Ne pas envoyer de message
+
+            }
+
+
+            // Envoyer le message au webhook
 
             fetch(webhookURL, {
 
@@ -171,7 +193,7 @@
 
                 },
 
-                body: JSON.stringify({ content: message })
+                body: JSON.stringify({ content: message, username: username })
 
             })
 
@@ -181,7 +203,7 @@
 
                     alert('Message envoyé avec succès !');
 
-                    document.getElementById('message').value = '';
+                    messageInput.value = '';
 
                 } else {
 
